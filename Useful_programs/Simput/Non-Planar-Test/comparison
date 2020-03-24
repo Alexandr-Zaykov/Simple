@@ -1,0 +1,90 @@
+Trunc, cutoff value set to 0.05:
+
+      TRP(A)=  0.1187281E+00 eV     TRP(A)**2=  0.1409637E-01eV**2       LJ(Rep)=  0.2330845E+04 eV      Mixed LJ-TRP(A)**2=  0.2330830E+04
+      TRP(B)= -0.1187277E+00 eV     TRP(B)**2=  0.1409626E-01eV**2       LJ(Rep)=  0.2330845E+04 eV      Mixed LJ-TRP(B)**2=  0.2330830E+04
+
+Excitonic: (meV)
+
+      (hAlA|hBlB)         =     194.610606
+
+      Mixing LE states in |S+>
+      Mixing(rad)         =       0.785398
+      Mixing(deg)         =      44.999999
+      Mixing LE states in |S->
+      Mixing(rad)         =       0.785398
+      Mixing(deg)         =      45.000001
+
+      Davydov Splitting:
+      dE(S- - S+)         =   -1571.177385
+
+      Trp(S+)^2           =   0.170823E-06
+      Mixed LJ-Trp(S+)^2  =***************
+      dE(TT - S+)         =    -392.534207
+      S+  phase           =      + (in phase)
+
+      Trp(S-)^2           =   0.106307E+05
+      Mixed LJ-Trp(S-)^2  =***************
+      dE(TT - S-)         =    1178.643178
+      S-  phase           =      - (out of phase)
+
+Biexciton Binding Energy:
+
+      dE(T1T1 - TT)       =       7.962760
+Endoergicity:
+
+      dE(process)         =    1186.605938
+
+Boltzmann weigthing
+      w(S+)               =       0.000000
+      w(S-)               =       1.000000
+      SF                  =***************
+      Trp**2              =   10630.666473
+
+Program Simple finished
+Elapsed CPU time:   0 days   0 hours   0 minutes   0.212 seconds
+
+
+No trunc (cutoff = 0):
+      TRP(A)=  0.1356746E+00 eV     TRP(A)**2=  0.1840760E-01eV**2       LJ(Rep)=  0.2330845E+04 eV      Mixed LJ-TRP(A)**2=  0.2330826E+04
+      TRP(B)= -0.1356746E+00 eV     TRP(B)**2=  0.1840759E-01eV**2       LJ(Rep)=  0.2330845E+04 eV      Mixed LJ-TRP(B)**2=  0.2330826E+04
+
+Excitonic: (meV)
+
+      (hAlA|hBlB)         =     196.815002
+
+      Mixing LE states in |S+>
+      Mixing(rad)         =       0.785398
+      Mixing(deg)         =      45.000000
+      Mixing LE states in |S->
+      Mixing(rad)         =       0.785398
+      Mixing(deg)         =      45.000000
+
+      Davydov Splitting:
+      dE(S- - S+)         =   -1622.569538
+
+      Trp(S+)^2           =   0.324960E-09
+      Mixed LJ-Trp(S+)^2  =***************
+      dE(TT - S+)         =    -403.003137
+      S+  phase           =      + (in phase)
+
+      Trp(S-)^2           =   0.135266E+05
+      Mixed LJ-Trp(S-)^2  =***************
+      dE(TT - S-)         =    1219.566401
+      S-  phase           =      - (out of phase)
+
+Biexciton Binding Energy:
+
+      dE(T1T1 - TT)       =       9.375142
+Endoergicity:
+
+      dE(process)         =    1228.941543
+
+Boltzmann weigthing
+      w(S+)               =       0.000000
+      w(S-)               =       1.000000
+      SF                  =***************
+      Trp**2              =   13526.630249
+
+Program Simple finished
+Elapsed CPU time:   0 days   0 hours   0 minutes   0.952 seconds
+

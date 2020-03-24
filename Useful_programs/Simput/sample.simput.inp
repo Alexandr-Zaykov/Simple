@@ -1,0 +1,21 @@
+HOMO A:71
+LUMO A:72
+HOMO B:71
+LUMO B:72
+DIR A:A1/
+DIR B:B1/
+Basis Set:6-311G.basis
+Title:sample.A1B1
+Method:SF-LJ 1.0
+Scan:
+T X:0.0
+T Y:0.0
+T Z:0.0
+R X:0.0
+R Y:0.0
+R Z:0.0
+EAC:1.0
+ECA:1.0
+Planar:no
+Processors:12
+%end
