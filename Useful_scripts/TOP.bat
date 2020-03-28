@@ -1,5 +1,4 @@
 #!/bin/bash
-#Liner, too bored to write it myself
 j=1
 l=0
 input_file=$1
@@ -17,44 +16,63 @@ Geoms=0
 CSV=0
 #Check for folders
 Folders=`ls -d */`
-
-#Check if the files even exist, if it does not prints a message and performs harakiri, also check for help request
-
-if [ "$input_file" = "-h" ] ; then
+#Functions
+error_popup () {
+  echo "ERROR: $1 file $2 does not exist." ; echo "Write \". TOP.bat -h\" for help."
+}
+help_us_obi1 () {
   echo "======================================================================  HELP FILE  ======================================================================"
   echo "This script is used to transform results of AUTOOPT to a more human-readable format. Made by Alexandr Zaykov."
   echo "It needs two files to run for the first time: simple input file and AUTOOPT output file named OptResultsReduced"
-  echo "To run the script write \". TOP.bat simple_input_name AUTOOPT_output_file\". Optionally add a number of lines (molecular pairs) you want to investigate."
-  echo "The script will then create separate folder for each structure and ask you if you want to run Simple in these folders."
+  echo "To run the script write \". TOP.bat simple_input_file AUTOOPT_output_file\". Optionally add a number of lines (molecular pairs) you want to investigate."
+  echo "The script will then create separate folder for each structure and copy and modify the input as \"Simple.inp\"."
+  echo "It will then ask you if you want to run Simple in these folders. If so, it will create a logfile named \"logSimple\"."
   echo "Also, the script can extract geometries into molden readable file - \"Geometries.xyz\". Each structure will have one frame."
   echo "The last thing this script can do is to extract the data from Simple calculation into .csv formatted file \"Table_Data.csv\" readable by table processors."
+  echo
+  echo "TL; DR:"
+  echo "INPUT: Original Simple input file, AUTOOPT output named \"OptResultsReduced\""
+  echo "START: \$ . TOP.bat simple_input_file AUTOOPT_output_file"
+  echo "OUTPUT: Table_Data.csv, Geometries.xyz, Structure_xy.xyz, Simple log files in each of the folders"
   echo "========================================================================================================================================================="
+}
+poison () {
   poison=1
-else
-  if [ ! -f "$input_file" ] ; then
-    echo "Original Simple input file $input_file does not exist"
-    echo "The command should look like . TOP.bat simple_input_file autoopt_output_file  optional_amount_of_lines"
-    echo If you do not know how to run this script, write \". TOP.bat -h\" for help.
-    poison=1
-  fi
-  if [ ! -f "$output_file" ] ; then
-    echo "AUTOOPT output file $input_file does not exist"
-    echo "The command should look like . TOP.bat simple_input_file autoopt_output_file  optional_amount_of_lines"
-    echo If you do not know how to run this script, write \". TOP.bat -h\" for help.
-    poison=1
-  fi
-fi
+}
+num_pairs () {
+  echo "The script will use $1 lines. $2"
+  num_lines=$1
+}
+yn_switch () {
+  echo
+  read -n1 -p "$1" doit
+  case $doit in
+      y|Y) printf -v "$2" '%s' '1' ;;  ## Assigns a variable with variable name, avoids eval and other evils
+      n|N) printf -v "$2" '%s' '0' ;;
+      *) ;;
+  esac
+}
+run_simple () {
+  [[ -d $1 ]] && cd $1 &> /dev/null && let Counter=$2*100 && let Percent=Counter/$3 && echo -ne "$Percent %\r" && Simple Simple.inp > logSimple ; cd - &> /dev/null
+}
+check_file () {
+  [[ $1 == Structure* ]] && { cd $j &> /dev/null ; [ ! -f $2 ] && printf -v "$3" '%s' '0' ; cd - &> /dev/null ; }
+}
+show_percent () {
+  let Counter=$1*100
+  let Percent=Counter/$2
+  echo -ne "$Percent %\r"
+}
+#Check if the files even exist, if it does not prints a message and performs harakiri, also check for help request
 
-#Check optional lines input and precheck if harakiri is needed
+[ "$input_file" = "-h" ] && help_us_obi1 && poison || { [ ! -f "$input_file" ] && error_popup "Simple input file" $input_file && poison ; [ ! -f "$output_file" ] && error_popup "AUTOOPT output file" $output_file && poison ; }
+
+#Check optional lines input and precheck if harakiri is needed, ends at the bottom of the file - very long if, I am sorry.
 
 if [ ! $poison -eq 1 ] ; then
-  if [[ -z ${3} ]]; then
-    echo "The script will use default 20 lines."
-    num_lines=20
-  else
-    num_lines=$3
-    echo "The script will use $num_lines lines."
-  fi
+
+#Read number of pairs chosen by the user
+  [[ -z ${3} ]] && num_pairs 20 "(default)" || num_pairs $3 "(user set)"
 
   #Run the body of the liner
   k=1
@@ -83,86 +101,39 @@ if [ ! $poison -eq 1 ] ; then
     fi
     k=$(($k + 1))
   done
+  yn_switch "Do you want to run Simple now? [y,n]" Simple
+  yn_switch "Do you want geometries to be extracted into a separate file? [y,n]" Geoms
+  yn_switch "Do you want the results to be extracted into a .CSV file? [y,n]" CSV
   echo
-  read -n1 -p "Do you want to run Simple now? [y,n]" doit
-  case $doit in
-      y|Y) Simple=1 ;;
-      n|N) Simple=0 ;;
-      *) ;; 
-  esac
-  echo
-  read -n1 -p "Do you want geometries to be extracted into a separate file? [y,n]" doit
-  case $doit in
-      y|Y) Geoms=1 ;;
-      n|N) Geoms=0 ;;
-      *) ;;
-  esac
-  echo
-  read -n1 -p "Do you want the results to be extracted into a .CSV file? [y,n]" doit
-  case $doit in
-      y|Y) CSV=1 ;;
-      n|N) CSV=0 ;;
-      *) ;;
-  esac
-  echo
-
 
 #Check if Simple input files exist
 ifiles=1
-if [ $Simple -eq 1 ] ; then
-  for j in $Folders ; do
-    if [[ $j == Structure* ]] ; then
-      cd $j &> /dev/null
-        if [ ! -f "Simple.inp" ] ; then
-          ifiles=0
-        fi
-      cd - &> /dev/null
-    fi
-  done
-fi
-
+[ $Simple -eq 1 ] && for j in $Folders ; do
+                       check_file $j "Simple.inp" ifiles
+                     done  
+#Simpler part of the script, pun inteded on all levels
 if [ $ifiles -eq 1  ] ; then
   if [ $Simple -eq 1 ] ; then
-#Simpler part of the script, pun inteded on all levels
     x=1
     Count=0
 
 #Counter
     for j in $Folders ; do
-      if [[ $j == Structure* ]] ; then
-        Count=$(($Count + 1))
-      fi
-    done
-
+      [[ $j == Structure* ]] && Count=$(($Count + 1)) 
+    done 
     k=1
     while [[ $k -le $num_lines ]] ; do 
-      if [[ -d "Structure$k" ]] ; then
-        cd Structure$k &> /dev/null
-          let Counter=k*100
-          let Percent=Counter/Count
-          echo -ne "$Percent %\r"
-          Simple Simple.inp > logSimple
-        cd - &> /dev/null
-      fi
+      run_simple Structure$k k Count
       k=$(($k + 1))
     done
     echo Simpled!
   fi
 #Check if Simple input files exist, but first check if it is even necessary to check
 ofiles=1
-if [ $Geoms -eq 1 ] || [ $CSV -eq 1 ] ; then
-  for j in $Folders ; do
-    if [[ $j == Structure* ]] ; then
-      cd $j &> /dev/null
-        if [ ! -f "logSimple" ] ; then
-          ofiles=0
-          echo "$j is missing an output file! Rerun Simple here!"
-        fi
-      cd - &> /dev/null
-    fi
-  done
-fi
-
+[ $Geoms -eq 1 ] || [ $CSV -eq 1 ] && for j in $Folders ; do
+                                        check_file $j "logSimple" ofiles
+                                      done 
+#Geometry part of the script
 if [ $ofiles -eq 1 ] ; then
   if [ $Geoms -eq 1 ] ; then
 #resets
@@ -186,9 +157,7 @@ if [ $ofiles -eq 1 ] ; then
     while [[ $k -le $num_lines ]] ; do
       if [[ -d "Structure$k" ]] ; then        
         j=Structure$k
-        let Counter=k*100
-        let Percent=Counter/Count
-        echo -ne "$Percent %\r"
+        show_percent k Count
         cd $j &> /dev/null
 #Find string and print it to the file
 #Geometries
@@ -233,9 +202,7 @@ if [ $ofiles -eq 1 ] ; then
     k=1
     while [[ $k -le $num_lines ]] ; do
       if [[ -d "Structure$k" ]] ; then        
-        let Counter=k*100
-        let Percent=Counter/Count
-        echo -ne "$Percent %\r"
+        show_percent k Count
         cd Structure$k &> /dev/null
           line=$(awk '/CSV:/ {getline; print}' logSimple)    #awk a line
           echo "$k, $line" >> ../Table_Data.csv
@@ -249,13 +216,13 @@ fi
 
 #FATAL errors
 else
-  echo Some of the logfiles are missing. Run Simple first within this script.
-  echo If you do not know how to run this script, write \". TOP.bat -h\" for help.
+  error_popup "Simple output" "logSimple"
+  echo SOLUTION: Run Simple first within this script.
 fi
 else
-  echo There are no Simple input files in some of folders, thus Simple was most probably not run and cannot be run now.
-  echo The shortest route to fix is to delete the Structure folders and start this script again.
-  echo If you do not know how to run this script, write \". TOP.bat -h\" for help.
+  error_popup "Simple input" "Simple.inp"
+  echo SOLUTION: The shortest route to fix is to delete the Structure folders and start this script again.
 fi
 #END OF POISON
 fi
+
