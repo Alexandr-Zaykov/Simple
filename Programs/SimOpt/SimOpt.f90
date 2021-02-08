@@ -29,7 +29,11 @@ program SimOpt
   call getarg(1,fnameinp)
   scrname = trim(fnameinp(1:len_trim(fnameinp)))
   n = scan(scrname,".",BACK=.true.)
-  if (n > 0) fname = scrname(1:n)
+  if (n > 0) then
+    fname = scrname(1:n)
+  else
+    fname = fnameinp
+  endif
 
 ! Open input file
   open(3,file=fnameinp,status='old',err=9998)
