@@ -123,7 +123,7 @@ Program AutoOpt
       enddo
     endif
     close(LUN)
-    command='SimOpt -nm '//scrinp(1:len_trim(scrinp))//' > '//scrlog(1:len_trim(scrlog))
+    command='SimOpt '//scrinp(1:len_trim(scrinp))//' > '//scrlog(1:len_trim(scrlog))
 !   Run optimization
     call system(command)
     close(LUN1)
